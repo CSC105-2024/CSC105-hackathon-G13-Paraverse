@@ -7,12 +7,12 @@ const Navbar = () => {
 
         <div className="text-gray-800 font-semibold text-lg">Paraverse</div>
         <div className="space-x-6 hidden md:flex">
-          <a href="/Home" className="text-gray-800 hover:text-[#5885AF]">Home</a>
+          <a href="/" className="text-gray-800 hover:text-[#5885AF]">Home</a>
           <a href="/category" className="text-gray-800 hover:text-[#5885AF]">Category</a>
         </div>
         <div className="space-x-6 hidden md:flex">
-          <a href="#" className="text-gray-800 hover:text-[#5885AF]">Login</a>
-          <a href="#" className="text-gray-800 hover:text-[#5885AF]">Register</a>
+          <a href="/login" className="text-gray-800 hover:text-[#5885AF]">Login</a>
+          <a href="/signup" className="text-gray-800 hover:text-[#5885AF]">Register</a>
         </div>
       </div>
     </nav>

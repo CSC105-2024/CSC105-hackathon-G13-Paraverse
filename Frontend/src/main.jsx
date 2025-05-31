@@ -4,22 +4,28 @@ import './index.css'
 import App from './App.jsx'
 import Home from './pages/home.jsx'
 import Category from './pages/category.jsx'
-import ForgetPasswoed from './pages/forget.jsx'
+import ForgetPassword from './pages/forget.jsx'
 import Login from './pages/login.jsx'
-import Register from './pages/singup.jsx'
+import SignUp from './pages/SignUp.jsx'
 import PostYourScenario from './pages/Post.jsx'
 import Profile from './pages/Profile.jsx'
 import Scenarios from './pages/scenarios.jsx'
 import Tag from './pages/tag.jsx'
+import { AuthProvider } from './context/AuthContext' // Add this import
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import ResetPassword from './pages/ResetPassword.jsx'
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <App />,
     children: [
       {
-        path: '/Home',
+        index: true,
+        element: <Home />
+      },
+      {
+        path: '/home',
         element: <Home />
       },
       {
@@ -27,23 +33,23 @@ const router = createBrowserRouter([
         element: <Category />
       },
       {
-        path: '/forget',
-        element: <ForgetPasswoed />
+        path: '/ForgotPassword',
+        element: <ForgetPassword />
       },
       {
         path: '/login',
         element: <Login />
       },
       {
-        path: '/register',
-        element: <Register />
+        path: '/signup',
+        element: <SignUp />
       },
       {
-        path: '/Post',
+        path: '/post',
         element: <PostYourScenario />
       },
       {
-        path: '/Profile',
+        path: '/profile',
         element: <Profile />
       },
       {
@@ -54,11 +60,19 @@ const router = createBrowserRouter([
         path: '/tag',
         element: <Tag />
       },
+      {
+        path: '/resetPassword/:token',
+        element: <ResetPassword/>
+      }
     ]
   }
-])
+]);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    {/* Wrap with AuthProvider */}
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
-)
+);
