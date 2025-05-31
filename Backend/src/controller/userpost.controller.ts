@@ -3,7 +3,7 @@ import type { Context } from 'hono';
 import { prisma } from '../index.ts';
 import { verifyAuth } from '../middleware/auth.ts';
 
-// Create a new post
+
 export const createPost = async (c: Context) => {
   try {
     const userId = await verifyAuth(c);

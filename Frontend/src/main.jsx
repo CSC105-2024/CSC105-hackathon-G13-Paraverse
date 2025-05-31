@@ -13,6 +13,7 @@ import Scenarios from './pages/scenarios.jsx'
 import Tag from './pages/tag.jsx'
 import { AuthProvider } from './context/AuthContext' // Add this import
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import ScenarioDetail from './pages/ScenariosDetailPage.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 
 const router = createBrowserRouter([
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path: '/resetPassword/:token',
         element: <ResetPassword/>
+      },
+      {
+        path: '/scenario/:id',
+        element: <ScenarioDetail />
       }
     ]
   }
