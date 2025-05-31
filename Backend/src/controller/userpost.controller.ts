@@ -17,7 +17,7 @@ export const createPost = async (c: Context) => {
     if (!title || !details || !category) {
       return c.json({ 
         status: false, 
-        message: 'Title, details, and category are required' 
+        message: 'Title, details, and category are required'
       }, 400);
     }
 
