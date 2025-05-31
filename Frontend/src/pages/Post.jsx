@@ -140,18 +140,6 @@ const PostYourScenario = () => {
             {categories.map((category, index) => (
               <option key={index} value={category}>{category}</option>
             ))}
-            {/* Default categories if none exist */}
-            {categories.length === 0 && (
-              <>
-                <option value="History">History</option>
-                <option value="Science">Science</option>
-                <option value="Technology">Technology</option>
-                <option value="Politics">Politics</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Sports">Sports</option>
-                <option value="Other">Other</option>
-              </>
-            )}
           </select>
           <p className="text-sm text-gray-500 mt-1">
             Categorizing helps others find your scenario.

@@ -11,12 +11,10 @@ const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchPosts();
-        fetchCategories();
     }, [currentPage, selectedCategory]);
 
     const fetchPosts = async () => {
@@ -44,18 +42,6 @@ const Home = () => {
             setLoading(false);
         }
     };
-
-    const fetchCategories = async () => {
-        try {
-            const response = await postAPI.getCategories();
-            if (response.data.status) {
-                setCategories(response.data.categories);
-            }
-        } catch (error) {
-            console.error('Failed to fetch categories:', error);
-        }
-    };
-
     const handleExplore = (postId) => {
         navigate(`/scenario/${postId}`);
     };
@@ -71,7 +57,7 @@ const Home = () => {
     };
 
     return (
-        <div className="bg-gray-100 min-h-screen px-4 md:px-16 py-8">
+        <div className="bg-gray-100 min-h-screen px-4 md:px-16 py-18">
             <div className="bg-white rounded shadow-md p-6 max-w-4xl mx-auto mb-8">
                 <h1 className="text-2xl font-semibold text-[#5885AF] mb-2">Welcome to Paraverse</h1>
                 <p className="text-gray-600 mb-4">Dive into alternate realities and explore fascinating "what if" scenarios.</p>
@@ -111,6 +97,9 @@ const Home = () => {
             <div className="max-w-4xl mx-auto">
                 <h2 className="text-lg font-semibold mb-4">Scenarios</h2>
 
+            <div className="max-w-4xl mx-auto">
+                <h2 className="text-lg font-semibold mb-4">Recent Scenarios</h2>
+                
                 {loading && (
                     <div className="text-center py-8">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5885AF] mx-auto"></div>
