@@ -3,17 +3,18 @@ import { postAPI } from "../utils/api.js";
 import Navbar from "../assets/Navbar.jsx";
 import ScenarioCard from "../components/ScenariosCard.jsx";
 import { NavLink, useNavigate } from "react-router-dom";
- 
+import { useAuth } from '../context/AuthContext';
+
 const Home = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [categories, setCategories] = useState([]);
+    const [searchTerm] = useState("");
+    const [selectedCategory] = useState("");
     const navigate = useNavigate();
- 
+    const { isAuthenticated } = useAuth(); 
     useEffect(() => {
         fetchPosts();
         fetchCategories();
@@ -75,9 +76,16 @@ const Home = () => {
             <div className="bg-white rounded shadow-md p-6 max-w-4xl mx-auto mb-8">
                 <h1 className="text-2xl font-semibold text-[#5885AF] mb-2">Welcome to Paraverse</h1>
                 <p className="text-gray-600 mb-4">Dive into alternate realities and explore fascinating "what if" scenarios.</p>
-                <NavLink to='/Post' className="bg-[#A05A2C] text-white px-4 py-2 rounded hover:bg-[#8B4513] transition">
-                    Post your scenario
-                </NavLink>
+                { isAuthenticated ? (
+                    <NavLink to='/Post' className="bg-[#A05A2C] text-white px-4 py-2 rounded hover:bg-[#8B4513] transition">
+                        Post your scenario
+                    </NavLink>
+                ) : (
+                    <div className="text-gray-500 font-semibold">
+                        please login before posting your scenarios.
+                    </div>
+                )}
+                
             </div>
  
             <div className="bg-white rounded shadow-md p-6 max-w-4xl mx-auto mb-6">
