@@ -1,8 +1,30 @@
 import React from 'react';
 
-const Category = () =>{
-    
-return (
+const CategoryPage = () => {
+  const categories = [
+    {
+      title: 'Politics',
+      description: 'Explore scenario related to politics',
+      link: 'View scenarios',
+    },
+    {
+      title: 'History',
+      description: 'Explore scenario related to history',
+      link: 'View scenarios'
+    },
+    {
+      title: 'Science and Technology',
+      description: 'Explore scenario related to politics',
+      link: 'View scenarios'
+    },
+    {
+      title: 'Pop-Culture',
+      description: 'Explore scenario related to history',
+      link: 'View scenarios'
+    }
+  ];
+
+  return (
     <div className="min-h-screen bg-gray-200">
       {/* Main Content */}
       <div className="container mx-auto px-6 py-12">
@@ -32,4 +54,4 @@ return (
   );
 };
 
-export default Category;
+export default CategoryPage;

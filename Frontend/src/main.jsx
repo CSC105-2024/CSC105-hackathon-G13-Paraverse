@@ -1,23 +1,28 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import Home from './pages/Home.jsx'
 import App from './App.jsx'
-
-// Force React to check local storage before initializing routes
-const token = localStorage.getItem('token');
-console.log("Initial Token Check:", token ? "Token exists" : "No token found");
+import Home from './pages/Home.jsx'
+import Category from './pages/category.jsx'
+import './App.css'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
-      
+      {
+        path: '/Home',
+        element: <Home />
+      },
+      {
+        path: '/category',
+        element: <Category />
+      },
     ]
   }
-]);
-
+])
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RouterProvider router={router} />
