@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PostYourScenario = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ const PostYourScenario = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -61,10 +63,10 @@ const PostYourScenario = () => {
         setMessage("Scenario posted successfully!");
         setFormData({ title: "", details: "", category: "" });
         
-        // Redirect to home page after successful post
+        // Use React Router navigation instead of window.location.href
         setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+          navigate('/');
+        }, 200);
       } else {
         setMessage(response.data.message || "Failed to post scenario");
       }

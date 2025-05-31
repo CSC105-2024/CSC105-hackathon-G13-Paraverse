@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { postAPI } from "../utils/api.js";
 import Navbar from "../assets/Navbar.jsx";
 import ScenarioCard from "../components/ScenariosCard.jsx";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -13,6 +13,7 @@ const Home = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [categories, setCategories] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchPosts();
@@ -58,7 +59,7 @@ const Home = () => {
     };
 
     const handleExplore = (postId) => {
-        window.location.href = `/scenario/${postId}`;
+        navigate(`/scenario/${postId}`);
     };
 
     const handleSearch = (e) => {
