@@ -9,7 +9,6 @@ import Login from './pages/login.jsx'
 import SignUp from './pages/SignUp.jsx'
 import PostYourScenario from './pages/Post.jsx'
 import Profile from './pages/Profile.jsx'
-import Scenarios from './pages/scenarios.jsx'
 import Tag from './pages/tag.jsx'
 import { AuthProvider } from './context/AuthContext' // Add this import
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
@@ -52,10 +51,6 @@ const router = createBrowserRouter([
       {
         path: '/profile',
         element: <Profile />
-      },
-      {
-        path: '/scenarios',
-        element: <Scenarios />
       },
       {
         path: '/tag',
