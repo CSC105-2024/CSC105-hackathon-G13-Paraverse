@@ -11,10 +11,10 @@ const Home = () => {
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchTerm] = useState("");
     const [selectedCategory] = useState("");
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth(); 
+    const [categories, setCategories] = useState([]);
     useEffect(() => {
         fetchPosts();
         fetchCategories();
@@ -86,34 +86,6 @@ const Home = () => {
                     </div>
                 )}
                 
-            </div>
- 
-            <div className="bg-white rounded shadow-md p-6 max-w-4xl mx-auto mb-6">
-                <div className="flex flex-wrap gap-2">
-                    <button
-                        onClick={() => handleCategoryFilter("")}
-                        className={`px-3 py-1 rounded text-sm transition ${
-                            selectedCategory === ""
-                                ? "bg-[#5885AF] text-white"
-                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
-                    >
-                        All
-                    </button>
-                    {categories.map((category, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleCategoryFilter(category)}
-                            className={`px-3 py-1 rounded text-sm transition ${
-                                selectedCategory === category
-                                    ? "bg-[#5885AF] text-white"
-                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                        >
-                            {category}
-                        </button>
-                    ))}
-                </div>
             </div>
  
             <div className="max-w-4xl mx-auto">
