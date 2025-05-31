@@ -31,6 +31,12 @@ const CategoryPage = () => {
         {/* Header Section */}
         <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
           <h1 className="text-3xl font-normal text-blue-500 mb-2">Explore Category</h1>
+    <div className="min-h-screen bg-gray-200 py-18">
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-1">
+        {/* Header Section */}
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <h1 className="text-3xl font-normal text-[#5885AF] mb-2">Explore Category</h1>
           <p className="text-gray-600">Browse scenarios by topics and interest</p>
         </div>
 
@@ -39,6 +45,7 @@ const CategoryPage = () => {
           {categories.map((category, index) => (
             <div key={index} className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-normal text-blue-500 mb-3">{category.title}</h2>
+              <h2 className="text-xl font-normal text-[#5885AF] mb-3">{category.title}</h2>
               <p className="text-gray-600 mb-4">{category.description}</p>
               <a 
                 href="#" 

@@ -7,6 +7,7 @@ const Home = () => {
                 <h1 className="text-2xl font-semibold text-[#5885AF] mb-2">Welcome to Paraverse</h1>
                 <p className="text-gray-600 mb-4">Dive into alternate realities and explore fascinating "what if" scenarios.</p>
                 <a href="/Post" className="bg-[#5885AF] text-white px-4 py-2 rounded hover:bg-[#416383]">
+                <a href='/Post'className="bg-[#A05A2C] text-white px-4 py-2 rounded hover:bg-[#8B4513]">
                     Post your senario
                 </a>
             </div>
