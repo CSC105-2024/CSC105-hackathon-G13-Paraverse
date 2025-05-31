@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import Home from './pages/Home.jsx'
 import Category from './pages/category.jsx'
+import Politics from '.pages/tags/Politics'
+import History from '.pages/tags/History'
 import './App.css'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 
@@ -20,6 +22,9 @@ const router = createBrowserRouter([
         path: '/category',
         element: <Category />
       },
+      {
+        path: ''
+      }
     ]
   }
 ])

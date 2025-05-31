@@ -5,22 +5,22 @@ const CategoryPage = () => {
     {
       title: 'Politics',
       description: 'Explore scenario related to politics',
-      link: 'View scenarios',
+      link: 'View scenarios',path: "/tags/Politics"
     },
     {
       title: 'History',
       description: 'Explore scenario related to history',
-      link: 'View scenarios'
+      link: 'View scenarios',path: "/tags/History"
     },
     {
       title: 'Science and Technology',
       description: 'Explore scenario related to politics',
-      link: 'View scenarios'
+      link: 'View scenarios',path: "tags/ScienceTechnology"
     },
     {
       title: 'Pop-Culture',
       description: 'Explore scenario related to history',
-      link: 'View scenarios'
+      link: 'View scenarios',path: "tags/Popculture"
     }
   ];
 
