@@ -53,7 +53,7 @@ const router = createBrowserRouter([
         element: <Profile />
       },
       {
-        path: '/tag',
+        path: '/tag/:category',
         element: <Tag />
       },
       {
