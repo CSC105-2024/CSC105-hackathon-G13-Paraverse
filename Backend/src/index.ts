@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 import { PrismaClient } from './generated/prisma/index.js';
 import authRoutes from './routes/user.routes.ts';
 import postRoutes from './routes/userpost.routes.ts';
+import commentRoutes from './routes/comment.routes.ts';
 import 'dotenv/config'
 
 export const prisma = new PrismaClient();
@@ -18,6 +19,7 @@ app.use('*', cors({
 // Routes
 app.route('/auth', authRoutes);
 app.route('/api', postRoutes);
+app.route('/api', commentRoutes);
 
 // Health check endpoint
 app.get('/', (c) => {

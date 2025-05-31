@@ -9,27 +9,27 @@ datasource db {
 }
 
 model User {
-  id             Int          @id @default(autoincrement())
-  username       String       @unique
-  email          String       @unique
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
+  email          String    @unique
   password       String
   profilePicture String?
-  createdAt      DateTime     @default(now())
-  posts          Post[]       // Add this relationship
+  createdAt      DateTime  @default(now())
+  posts          Post[]
   comments       Comment[]
 }
 
 model Post {
-  id          Int      @id @default(autoincrement())
-  title       String
-  details     String
-  category    String
-  authorId    Int
-  likes       Int      @default(0)
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  comments   Comment[]
+  id        Int       @id @default(autoincrement())
+  title     String
+  details   String
+  category  String
+  authorId  Int
+  likes     Int       @default(0)
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Comment {
@@ -39,4 +39,7 @@ model Comment {
   authorId  Int
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
