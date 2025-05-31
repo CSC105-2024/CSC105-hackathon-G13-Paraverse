@@ -76,7 +76,7 @@ const Category = () => {
         <div className="bg-gray-100 min-h-screen px-4 md:px-16 py-18">
             <div className=" bg-white rounded shadow-md p-6 max-w-4xl mx-auto mb-6">
             <div className="text-2xl font-semibold text-[#5885AF] mb-2"> Choose the category your interest</div>
-                <p className="text-gray-600 mb-4">Explore varer scenarios in the categories you interest in.</p>
+                <p className="text-gray-600 mb-4">Explore various scenarios in the categories you interest in.</p>
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => handleCategoryFilter("")}
