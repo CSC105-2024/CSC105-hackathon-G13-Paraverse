@@ -7,7 +7,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-300 shadow-md fixed w-full ">
+    <nav className="fixed w-full bg-black/10 backdrop-blur-lg backdrop-saturate-150">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         <div className="text-gray-800 font-semibold text-lg">Paraverse</div>
         <div className="space-x-6 hidden md:flex">
