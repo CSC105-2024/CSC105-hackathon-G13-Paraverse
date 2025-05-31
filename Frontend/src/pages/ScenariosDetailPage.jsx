@@ -55,11 +55,13 @@ const ScenarioDetail = () => {
             if (response.data.status) {
                 setPost(response.data.post);
                 setLikes(response.data.post.likes || 0);
+
                 setEditForm({
                     title: response.data.post.title,
                     details: response.data.post.details,
                     category: response.data.post.category
                 });
+
                 setError("");
             } else {
                 setError("Post not found");
@@ -76,6 +78,7 @@ const ScenarioDetail = () => {
         }
     };
 
+
     const fetchComments = async () => {
         try {
             setCommentsLoading(true);
@@ -91,6 +94,7 @@ const ScenarioDetail = () => {
         }
     };
 
+
     const handleLike = async () => {
         if (liked) return;
         try {
@@ -104,6 +108,7 @@ const ScenarioDetail = () => {
             console.error("Error liking post:", err);
         }
     };
+
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -263,6 +268,7 @@ const ScenarioDetail = () => {
         }
     };
 
+
     const formatDate = (dateString) => {
         const options = {
             year: "numeric",
@@ -394,6 +400,7 @@ const ScenarioDetail = () => {
                     )}
                 </div>
 
+
                 {/* Title - Editable */}
                 {isEditing ? (
                     <input
@@ -440,6 +447,7 @@ const ScenarioDetail = () => {
                             disabled={liked}
                             className={`flex items-center ${liked ? "text-red-500" : "hover:text-red-500"} transition`}
                         >
+
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     strokeLinecap="round"
@@ -451,22 +459,26 @@ const ScenarioDetail = () => {
                             Like ({likes})
                         </button>
                         <div className="flex items-center">
+
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
+
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                 />
                             </svg>
                             Comments ({commentCount})
                         </div>
+
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-8 mb-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">Scenario Details</h2>
                     <div className="prose max-w-none">
+
                         {isEditing ? (
                             <textarea
                                 value={editForm.details}
@@ -658,6 +670,7 @@ const ScenarioDetail = () => {
                     </div>
                 </div>
             )}
+
         </div>
     );
 };
