@@ -10,7 +10,6 @@ const Home = () => {
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
@@ -26,12 +25,11 @@ const Home = () => {
             const params = {
                 page: currentPage,
                 limit: 10,
-                ...(searchTerm && { search: searchTerm }),
                 ...(selectedCategory && { category: selectedCategory })
             };
 
             const response = await postAPI.getAllPosts(params);
-            
+
             if (response.data.status) {
                 setPosts(response.data.posts);
                 setTotalPages(response.data.pagination.totalPages);
@@ -62,12 +60,6 @@ const Home = () => {
         navigate(`/scenario/${postId}`);
     };
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        setCurrentPage(1);
-        fetchPosts();
-    };
-
     const handleCategoryFilter = (category) => {
         setSelectedCategory(category);
         setCurrentPage(1);
@@ -89,24 +81,6 @@ const Home = () => {
             </div>
 
             <div className="bg-white rounded shadow-md p-6 max-w-4xl mx-auto mb-6">
-                <form onSubmit={handleSearch} className="mb-4">
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="Search scenarios..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#5885AF]"
-                        />
-                        <button 
-                            type="submit"
-                            className="bg-[#5885AF] text-white px-6 py-2 rounded hover:bg-[#416383] transition"
-                        >
-                            Search
-                        </button>
-                    </div>
-                </form>
-
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => handleCategoryFilter("")}
@@ -136,7 +110,7 @@ const Home = () => {
 
             <div className="max-w-4xl mx-auto">
                 <h2 className="text-lg font-semibold mb-4">Scenarios</h2>
-                
+
                 {loading && (
                     <div className="text-center py-8">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5885AF] mx-auto"></div>
@@ -154,8 +128,8 @@ const Home = () => {
                     <div className="text-center py-8">
                         <p className="text-gray-500 text-lg">No scenarios found.</p>
                         <p className="text-gray-400 text-sm mt-2">
-                            {searchTerm || selectedCategory 
-                                ? "Try adjusting your search or filter criteria." 
+                            {selectedCategory 
+                                ? "Try adjusting your category filter." 
                                 : "Be the first to post a scenario!"
                             }
                         </p>
@@ -215,5 +189,4 @@ const Home = () => {
     );
 };
 
-// Only export Home since PostYourScenario is defined in a different file
 export default Home;
