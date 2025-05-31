@@ -5,7 +5,7 @@ import Navbar from './assets/Navbar.jsx'
 function App() {
   return (
     <>
-      <Navbar />
+        <Navbar />
         <Outlet />
     </>
   )
