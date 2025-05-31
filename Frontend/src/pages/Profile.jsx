@@ -23,7 +23,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 text-lg font-medium transition-colors duration-200">
+        <button className="bg-[#5885AF] hover:bg-[#334d66] text-white px-8 py-3 text-lg font-medium transition-colors duration-200">
           Edit Profile
         </button>
       </div>
