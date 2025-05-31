@@ -12,6 +12,7 @@ const ScenarioDetail = () => {
     const [liked, setLiked] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [likeLoading, setLikeLoading] = useState(false);
     
     // Edit functionality states
     const [isEditing, setIsEditing] = useState(false);
@@ -38,15 +39,16 @@ const ScenarioDetail = () => {
 
     useEffect(() => {
         fetchPost();
-        const likedBefore = localStorage.getItem(`liked_post_${id}`);
-        if (likedBefore) setLiked(true);
     }, [id]);
 
     useEffect(() => {
         if (post) {
             fetchComments();
+            if (isAuthenticated) {
+                fetchLikeStatus();
+            }
         }
-    }, [post]);
+    }, [post, isAuthenticated]);
 
     const fetchPost = async () => {
         try {
@@ -78,6 +80,27 @@ const ScenarioDetail = () => {
         }
     };
 
+    const fetchLikeStatus = async () => {
+        if (!isAuthenticated) return;
+        
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(
+                `http://localhost:3306/api/posts/${id}/like/status`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            
+            if (response.data.success) {
+                setLiked(response.data.data.liked);
+            }
+        } catch (error) {
+            console.error("Error fetching like status:", error);
+        }
+    };
 
     const fetchComments = async () => {
         try {
@@ -94,21 +117,47 @@ const ScenarioDetail = () => {
         }
     };
 
-
     const handleLike = async () => {
-        if (liked) return;
+        if (!isAuthenticated) {
+            alert("Please log in to like posts");
+            return;
+        }
+
+        if (likeLoading) return;
+
         try {
-            const response = await axios.patch(`http://localhost:3306/api/posts/${id}/like`);
-            if (response.data.status) {
-                setLikes(response.data.likes);
-                setLiked(true);
-                localStorage.setItem(`liked_post_${id}`, "true");
+            setLikeLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.post(
+                `http://localhost:3306/api/posts/${id}/like`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data.success) {
+                const { action, liked: newLikedStatus } = response.data.data;
+                setLiked(newLikedStatus);
+                
+                // Update like count based on action
+                if (action === 'liked') {
+                    setLikes(prev => prev + 1);
+                } else if (action === 'unliked') {
+                    setLikes(prev => Math.max(0, prev - 1));
+                }
+            } else {
+                alert("Failed to update like: " + response.data.message);
             }
-        } catch (err) {
-            console.error("Error liking post:", err);
+        } catch (error) {
+            console.error("Error toggling like:", error);
+            alert("Failed to update like. Please try again.");
+        } finally {
+            setLikeLoading(false);
         }
     };
-
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -174,7 +223,7 @@ const ScenarioDetail = () => {
 
         try {
             setCommentSubmitting(true);
-            const token = localStorage.getItem('token'); // Adjust based on how you store auth token
+            const token = localStorage.getItem('token');
             const response = await axios.post(
                 'http://localhost:3306/api/comments',
                 {
@@ -190,7 +239,7 @@ const ScenarioDetail = () => {
 
             if (response.data.success) {
                 setNewComment("");
-                fetchComments(); // Refresh comments
+                fetchComments();
             } else {
                 alert("Failed to post comment: " + response.data.error);
             }
@@ -268,7 +317,6 @@ const ScenarioDetail = () => {
         }
     };
 
-
     const formatDate = (dateString) => {
         const options = {
             year: "numeric",
@@ -317,7 +365,7 @@ const ScenarioDetail = () => {
     if (!post) return null;
 
     return (
-        <div className="min-h-screen bg-gray-100 px-4 md:px-16 py-8">
+        <div className="min-h-screen bg-gray-100 px-4 md:px-16 py-20">
             <div className="max-w-4xl mx-auto mb-6">
                 <button
                     onClick={handleBack}
@@ -400,7 +448,6 @@ const ScenarioDetail = () => {
                     )}
                 </div>
 
-
                 {/* Title - Editable */}
                 {isEditing ? (
                     <input
@@ -444,41 +491,51 @@ const ScenarioDetail = () => {
                     <div className="flex items-center space-x-6 text-gray-500">
                         <button
                             onClick={handleLike}
-                            disabled={liked}
-                            className={`flex items-center ${liked ? "text-red-500" : "hover:text-red-500"} transition`}
+                            disabled={likeLoading}
+                            className={`flex items-center transition ${
+                                liked 
+                                    ? "text-red-500" 
+                                    : "hover:text-red-500"
+                            } ${
+                                likeLoading ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
                         >
-
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                />
-                            </svg>
-                            Like ({likes})
+                            {likeLoading ? (
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
+                            ) : (
+                                <svg 
+                                    className="w-5 h-5 mr-2" 
+                                    fill={liked ? "currentColor" : "none"} 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                </svg>
+                            )}
+                            {liked ? "Unlike" : "Like"} ({likes})
                         </button>
                         <div className="flex items-center">
-
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                 />
                             </svg>
                             Comments ({commentCount})
                         </div>
-
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-8 mb-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">Scenario Details</h2>
                     <div className="prose max-w-none">
-
                         {isEditing ? (
                             <textarea
                                 value={editForm.details}

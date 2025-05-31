@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { z } from 'zod';
+
+const schema = z.object({
+  username: z.string().min(3, 'Username must be at least 3 characters long'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters long'),
+});
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -9,9 +16,24 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({ username: '', email: '', password: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate input using Zod
+    const result = schema.safeParse({ username, email, password });
+    if (!result.success) {
+      const fieldErrors = { username: '', email: '', password: '' };
+      result.error.errors.forEach(err => {
+        fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({ username: '', email: '', password: '' });
+
     try {
       const res = await axios.post('http://localhost:3306/auth/signup', { username, email, password });
       if (res.data.status) navigate('/login');
@@ -36,6 +58,7 @@ const SignUp = () => {
               className="w-full border border-b-gray-600 bg-white p-2 rounded"
               required
             />
+            {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
           </div>
 
           <div>
@@ -50,6 +73,7 @@ const SignUp = () => {
               className="w-full border border-b-gray-600 bg-white p-2 rounded"
               required
             />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
 
           <div>
@@ -71,6 +95,7 @@ const SignUp = () => {
                 {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
             </div>
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
           </div>
 
           <button type="submit" className="w-full bg-[#5885AF] text-gray-800 py-2 rounded hover:bg-[#46698a] transition-colors">

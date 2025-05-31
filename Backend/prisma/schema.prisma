@@ -17,6 +17,7 @@ model User {
   createdAt      DateTime  @default(now())
   posts          Post[]
   comments       Comment[]
+  likes          Like[]    // Add this line
 }
 
 model Post {
@@ -28,6 +29,7 @@ model Post {
   likes     Int       @default(0)
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Comment[]
+  postLikes Like[]    // Add this line
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -41,5 +43,17 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Add this new model
+model Like {
+  id       Int  @id @default(autoincrement())
+  userId   Int
+  postId   Int
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post     Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId]) // Ensure one like per user per post
 }
 
