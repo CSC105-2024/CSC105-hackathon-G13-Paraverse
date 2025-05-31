@@ -25,11 +25,18 @@ const ProfilePage = () => {
 
   /** Fetch profile on mount */
   useEffect(() => {
-    if (!isAuthenticated) return navigate('/login');
-    (async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return navigate('/');
+        if (!token) {
+          navigate('/');
+          return;
+        }
         const res = await axios.get('http://localhost:3306/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -51,31 +58,29 @@ const ProfilePage = () => {
       } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    fetchProfile();
   }, [isAuthenticated, navigate]);
 
   /** Handle image selection */
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (1MB limit)
       if (file.size > 1000000) {
         setError('Image too large. Please select an image smaller than 1MB.');
-        e.target.value = null; // Reset the input
+        e.target.value = null;
         return;
       }
-      
-      // Check file type
       if (!file.type.startsWith('image/')) {
         setError('Please select a valid image file.');
-        e.target.value = null; // Reset the input
+        e.target.value = null;
         return;
       }
-      
+
       setProfileImage(file);
-      setError(''); // Clear any previous errors
-      
-      // Create preview URL
+      setError('');
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
@@ -90,32 +95,25 @@ const ProfilePage = () => {
     setSaving(true);
     setError('');
     setSuccess('');
-    
+
     try {
       const token = localStorage.getItem('token');
-      
-      // Create form data to handle file upload
       const formData = new FormData();
       formData.append('username', editUsername);
-      
-      // Only append file if a new one is selected
       if (profileImage) {
         formData.append('profilePicture', profileImage);
       }
-      
-      console.log("Sending update with:", { username: editUsername, hasImage: !!profileImage });
-      
+
       const res = await axios.put(
         'http://localhost:3306/auth/update-profile',
         formData,
         { 
           headers: { 
-            Authorization: `Bearer ${token}`,
-            // Don't set Content-Type manually - axios will set the correct boundary with multipart/form-data
+            Authorization: `Bearer ${token}` 
           } 
         }
       );
-      
+
       if (res.data.status) {
         setUserData((prev) => ({ 
           ...prev, 
@@ -124,7 +122,7 @@ const ProfilePage = () => {
         }));
         setSuccess('Profile updated successfully');
         setEditMode(false);
-        setProfileImage(null); // Reset after successful upload
+        setProfileImage(null);
       } else {
         setError(res.data.message || 'Update failed');
       }
@@ -136,7 +134,7 @@ const ProfilePage = () => {
     }
   };
 
-  /** Get avatar display (either uploaded image or default placeholder) */
+  /** Get avatar display */
   const getAvatarDisplay = () => {
     if (previewImage) {
       return (
@@ -150,8 +148,7 @@ const ProfilePage = () => {
         </div>
       );
     }
-    
-    // Default placeholder with user's initials
+
     const initials = userData.username ? userData.username[0].toUpperCase() : '?';
     return (
       <div className="relative">
@@ -182,16 +179,13 @@ const ProfilePage = () => {
 
           {!editMode ? (
             <>
-              {/* View mode */}
               <div className="flex flex-col items-center mb-6">
-                {/* Profile Picture - Always visible */}
                 <div className="mb-4">
                   {getAvatarDisplay()}
                 </div>
-                
                 <div className="space-y-4 w-full">
                   <div>
-                    <h3 className="text-sm font-semibold text-white-500\">USERNAME</h3>
+                    <h3 className="text-sm font-semibold text-gray-500">USERNAME</h3>
                     <p className="text-lg">{userData.username}</p>
                   </div>
                   <div>
@@ -203,7 +197,6 @@ const ProfilePage = () => {
                     <p className="text-lg">{userData.joinDate}</p>
                   </div>
                 </div>
-
                 <button
                   onClick={() => setEditMode(true)}
                   className="w-full bg-[#5885AF] text-white py-2 rounded hover:bg-[#46698a] mt-8"
@@ -214,14 +207,11 @@ const ProfilePage = () => {
             </>
           ) : (
             <>
-              {/* Edit mode */}
               <div className="flex flex-col items-center mb-6">
-                {/* Profile Picture with preview */}
                 <div className="mb-4">
                   {getAvatarDisplay()}
                 </div>
               </div>
-              
               <form onSubmit={saveChanges} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold mb-1">Profile Picture</label>
@@ -235,7 +225,6 @@ const ProfilePage = () => {
                     Select a new image to change your profile picture (max 1MB)
                   </p>
                 </div>
-                
                 <div>
                   <label className="block text-sm font-semibold mb-1">Username</label>
                   <input
@@ -246,7 +235,6 @@ const ProfilePage = () => {
                     required
                   />
                 </div>
-                
                 <button
                   type="submit"
                   disabled={saving}
@@ -254,14 +242,13 @@ const ProfilePage = () => {
                 >
                   {saving ? 'Saving…' : 'Save Changes'}
                 </button>
-                
                 <button
                   type="button"
                   onClick={() => {
                     setEditMode(false);
-                    setPreviewImage(userData.profilePicture); // Reset preview on cancel
+                    setPreviewImage(userData.profilePicture);
                     setProfileImage(null);
-                    setError(''); // Clear any errors
+                    setError('');
                   }}
                   className="w-full bg-[#5885AF] text-white py-2 rounded hover:bg-[#46698a] transition-colors"
                 >
