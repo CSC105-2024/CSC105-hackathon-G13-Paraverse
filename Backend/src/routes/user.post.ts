@@ -7,7 +7,7 @@ import {
   updatePost,
   deletePost,
   getCategories
-} from '../controller/userpost.controller.js';
+} from '../controller/user.post.controller.js';
 
 const router = new Hono();
 
