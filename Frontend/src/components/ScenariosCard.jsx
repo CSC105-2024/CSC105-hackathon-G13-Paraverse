@@ -72,12 +72,12 @@ const ScenarioCard = ({ post, onExplore }) => {
             </svg>
             {likeCount} {/* Display dynamic like count */}
           </span>
-          <span className="flex items-center">
+          {/* <span className="flex items-center">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
             </svg>
-            {commentCount} {/* Display dynamic comment count */}
-          </span>
+            {commentCount} Display dynamic comment count
+          </span> */}
         </div>
 
         <button
