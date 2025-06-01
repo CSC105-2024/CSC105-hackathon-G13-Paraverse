@@ -330,7 +330,7 @@ const ScenarioDetail = () => {
     };
 
     const handleBack = () => {
-        navigate(-1);
+        navigate("/");
     };
 
     // Check if current user is the owner of the post

@@ -34,12 +34,12 @@ const ProfilePage = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.log('❌ No token found in localStorage');
+          console.log('No token found in localStorage');
           navigate('/login');
           return;
         }
 
-        console.log('🔄 Fetching profile data...');
+        console.log('Fetching profile data...');
         const res = await axios.get('http://localhost:3306/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -60,12 +60,12 @@ const ProfilePage = () => {
             setPreviewImage(user.profilePicture);
           }
           
-          console.log('✅ Profile data loaded successfully');
+          console.log('Profile data loaded successfully');
         } else {
           throw new Error('Invalid response format');
         }
       } catch (err) {
-        console.error('❌ Profile fetch error:', err);
+        console.error('Profile fetch error:', err);
         setError('Failed to load profile information');
         
         // If unauthorized, redirect to login
@@ -86,7 +86,7 @@ const ProfilePage = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    console.log('🖼️ Image selected:', file.name, file.size, file.type);
+    console.log('Image selected:', file.name, file.size, file.type);
 
     // Reset previous errors
     setError('');
@@ -111,11 +111,11 @@ const ProfilePage = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewImage(reader.result);
-      console.log('✅ Image preview created');
+      console.log('Image preview created');
     };
     reader.onerror = () => {
       setError('Error reading image file');
-      console.error('❌ FileReader error');
+      console.error('FileReader error');
     };
     reader.readAsDataURL(file);
   };
@@ -141,8 +141,8 @@ const ProfilePage = () => {
         return;
       }
 
-      console.log('🔄 Submitting profile update...');
-      console.log('📝 Data:', { 
+      console.log('Submitting profile update...');
+      console.log('Data:', { 
         username: editUsername.trim(), 
         hasImage: !!profileImage,
         imageSize: profileImage?.size,
@@ -154,7 +154,7 @@ const ProfilePage = () => {
       
       if (profileImage) {
         formData.append('profilePicture', profileImage);
-        console.log('📎 Image attached to form data');
+        console.log('Image attached to form data');
       }
 
       const res = await axios.put(
@@ -169,7 +169,7 @@ const ProfilePage = () => {
         }
       );
 
-      console.log('📨 Server response:', res.data);
+      console.log('Server response:', res.data);
 
       if (res.data.status) {
         // Update local state with new data
@@ -184,7 +184,7 @@ const ProfilePage = () => {
           setPreviewImage(res.data.user.profilePicture);
         }
         
-        setSuccess('Profile updated successfully! ✅');
+        setSuccess('Profile updated successfully! ');
         setEditMode(false);
         setProfileImage(null);
         
@@ -192,12 +192,12 @@ const ProfilePage = () => {
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = '';
         
-        console.log('✅ Profile update completed successfully');
+        console.log('Profile update completed successfully');
       } else {
         throw new Error(res.data.message || 'Update failed');
       }
     } catch (err) {
-      console.error('❌ Profile update error:', err);
+      console.error('Profile update error:', err);
       
       let errorMessage = 'Failed to update profile';
       
@@ -244,7 +244,7 @@ const ProfilePage = () => {
             alt="Profile" 
             className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 shadow-md"
             onError={(e) => {
-              console.error('❌ Image load error');
+              console.error('Image load error');
               // Fallback to initials if image fails to load
               e.target.style.display = 'none';
             }}

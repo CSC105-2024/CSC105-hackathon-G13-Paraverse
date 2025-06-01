@@ -164,19 +164,19 @@ export const updateProfile = async (c: Context) => {
     // Authenticate user
     const authHeader = c.req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('❌ No valid Authorization header found');
+      console.log('No valid Authorization header found');
       return c.json({ status: false, message: 'Unauthorized - No valid token' }, 401);
     }
     
     const token = authHeader.split(' ')[1];
-    console.log('✅ Token extracted from header');
+    console.log('Token extracted from header');
     
     let decoded;
     try {
       decoded = jwt.verify(token, JWT_SECRET) as { id: number };
-      console.log('✅ Token verified, user ID:', decoded.id);
+      console.log('Token verified, user ID:', decoded.id);
     } catch (jwtError) {
-      console.log('❌ JWT verification failed:', jwtError);
+      console.log('JWT verification failed:', jwtError);
       return c.json({ status: false, message: 'Invalid or expired token' }, 401);
     }
 
@@ -184,9 +184,9 @@ export const updateProfile = async (c: Context) => {
     let formData;
     try {
       formData = await c.req.formData();
-      console.log('✅ FormData parsed successfully');
+      console.log('FormData parsed successfully');
     } catch (formError) {
-      console.log('❌ FormData parsing failed:', formError);
+      console.log('FormData parsing failed:', formError);
       return c.json({ status: false, message: 'Invalid form data' }, 400);
     }
     
@@ -195,11 +195,11 @@ export const updateProfile = async (c: Context) => {
 
     // Validate username
     if (!username || username.trim().length < 1) {
-      console.log('❌ Invalid username provided');
+      console.log('Invalid username provided');
       return c.json({ status: false, message: 'Username is required' }, 400);
     }
 
-    console.log('📝 Update request data:', { 
+    console.log('Update request data:', { 
       username: username?.trim(), 
       hasProfilePicture: !!profilePicture && profilePicture.size > 0,
       pictureType: profilePicture?.type,
@@ -211,11 +211,11 @@ export const updateProfile = async (c: Context) => {
 
     // Handle profile picture if provided
     if (profilePicture && profilePicture.size > 0) {
-      console.log('🖼️ Processing profile picture...');
+      console.log('Processing profile picture...');
       
       // Validate file type
       if (!profilePicture.type.startsWith('image/')) {
-        console.log('❌ Invalid file type:', profilePicture.type);
+        console.log('Invalid file type:', profilePicture.type);
         return c.json({ 
           status: false, 
           message: 'Please upload a valid image file (JPG, PNG, GIF, WebP)' 
@@ -224,7 +224,7 @@ export const updateProfile = async (c: Context) => {
 
       // Check file size (2MB limit for better compatibility)
       if (profilePicture.size > 2000000) {
-        console.log('❌ File too large:', profilePicture.size);
+        console.log('File too large:', profilePicture.size);
         return c.json({ 
           status: false, 
           message: 'Image too large. Please choose an image smaller than 2MB.' 
@@ -237,22 +237,22 @@ export const updateProfile = async (c: Context) => {
         const buffer = Buffer.from(arrayBuffer);
         const base64Image = `data:${profilePicture.type};base64,${buffer.toString('base64')}`;
         
-        console.log('✅ Image converted to base64, length:', base64Image.length);
+        console.log('Image converted to base64, length:', base64Image.length);
         updateData.profilePicture = base64Image;
       } catch (imageError) {
-        console.error('❌ Error processing image:', imageError);
+        console.error('Error processing image:', imageError);
         return c.json({ 
           status: false, 
           message: 'Error processing image. Please try a different image.' 
         }, 400);
       }
     } else {
-      console.log('ℹ️ No profile picture provided or file is empty');
+      console.log('No profile picture provided or file is empty');
     }
 
     // Update user in database
     try {
-      console.log('💾 Attempting database update...');
+      console.log('Attempting database update...');
       
       const updatedUser = await prisma.user.update({
         where: { id: decoded.id },
@@ -265,7 +265,7 @@ export const updateProfile = async (c: Context) => {
         },
       });
 
-      console.log('✅ Database update successful');
+      console.log('Database update successful');
       
       return c.json({ 
         status: true, 
@@ -274,7 +274,7 @@ export const updateProfile = async (c: Context) => {
       });
       
     } catch (dbError: any) {
-      console.error('❌ Database update error:', dbError);
+      console.error('Database update error:', dbError);
       
       let errorMessage = 'Database update failed';
       if (dbError.code === 'P2002') {
@@ -290,7 +290,7 @@ export const updateProfile = async (c: Context) => {
     }
     
   } catch (error) {
-    console.error('❌ Unexpected error in updateProfile:', error);
+    console.error('Unexpected error in updateProfile:', error);
     return c.json({ 
       status: false, 
       message: 'Internal server error. Please try again.' 
