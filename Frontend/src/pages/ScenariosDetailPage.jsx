@@ -14,7 +14,7 @@ const ScenarioDetail = () => {
     const [error, setError] = useState("");
     const [likeLoading, setLikeLoading] = useState(false);
     const categories = ["History", "Politics", "General", "Science and Technology", "Pop-Culture"];
-    
+
     // Edit functionality states
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({
@@ -23,7 +23,7 @@ const ScenarioDetail = () => {
         category: ""
     });
     const [editLoading, setEditLoading] = useState(false);
-    
+
     // Delete functionality states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
@@ -83,7 +83,7 @@ const ScenarioDetail = () => {
 
     const fetchLikeStatus = async () => {
         if (!isAuthenticated) return;
-        
+
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
@@ -94,7 +94,7 @@ const ScenarioDetail = () => {
                     }
                 }
             );
-            
+
             if (response.data.success) {
                 setLiked(response.data.data.liked);
             }
@@ -142,7 +142,7 @@ const ScenarioDetail = () => {
             if (response.data.success) {
                 const { action, liked: newLikedStatus } = response.data.data;
                 setLiked(newLikedStatus);
-                
+
                 // Update like count based on action
                 if (action === 'liked') {
                     setLikes(prev => prev + 1);
@@ -177,7 +177,7 @@ const ScenarioDetail = () => {
         try {
             setEditLoading(true);
             const response = await axios.put(`http://localhost:3306/api/posts/${id}`, editForm);
-            
+
             if (response.data.status) {
                 setPost(response.data.post);
                 setIsEditing(false);
@@ -201,7 +201,7 @@ const ScenarioDetail = () => {
         try {
             setDeleteLoading(true);
             const response = await axios.delete(`http://localhost:3306/api/posts/${id}`);
-            
+
             if (response.data.status) {
                 alert("Post deleted successfully!");
                 navigate(-1);
@@ -380,26 +380,69 @@ const ScenarioDetail = () => {
             </div>
 
             <div className="max-w-4xl mx-auto">
-                <div className="mb-4 flex justify-between items-start">
-                    <span className="inline-block bg-[#5885AF] text-white px-4 py-2 rounded-full text-sm font-medium">
+                <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div className="w-full sm:w-auto">
                         {isEditing ? (
-                            <select 
-                            name="category"
-                            value={editForm.category}
-                            onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                            className="w-full px-4 py-2 border  rounded bg-[#5885AF]"
-                            required
-                            >
-                            <option value="">Select a category</option>
-                            {categories.map((category, index) => (
-                              <option key={index} value={category}>{category}</option>
-                            ))}
-                          </select>
+                            <div className="relative">
+                                <select
+                                    name="category"
+                                    value={editForm.category}
+                                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                                    className="w-full sm:w-48 px-4 py-2 appearance-none bg-[#5885AF] text-white rounded-full 
+                        border-2 border-[#5885AF] hover:bg-[#416383] transition-colors duration-200 
+                        cursor-pointer text-sm font-medium focus:outline-none focus:ring-2 
+                        focus:ring-offset-2 focus:ring-[#5885AF]"
+                                    required
+                                >
+                                    <option value="" disabled>Select a category</option>
+                                    {categories.map((category, index) => (
+                                        <option
+                                            key={index}
+                                            value={category}
+                                            className="bg-white text-gray-800"
+                                        >
+                                            {category}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <svg
+                                        className="w-4 h-4 text-white"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 9l-7 7-7-7"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
                         ) : (
-                            post.category
+                            <div className="inline-flex items-center space-x-2 bg-[#5885AF] text-white px-4 py-2 
+                    rounded-full text-sm font-medium hover:bg-[#416383] transition-colors duration-200">
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"
+                                    />
+                                </svg>
+                                <span>{post.category}</span>
+                            </div>
                         )}
-                    </span>
-                    
+                    </div>
+
+
                     {/* Owner Actions */}
                     {isOwner && !isEditing && (
                         <div className="flex space-x-2">
@@ -459,7 +502,7 @@ const ScenarioDetail = () => {
                     <input
                         type="text"
                         value={editForm.title}
-                        onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                         className="text-3xl md:text-4xl font-bold text-[#5885AF] mb-6 leading-tight w-full border-b-2 border-[#5885AF] focus:outline-none bg-transparent"
                         placeholder="Post title"
                     />
@@ -498,21 +541,19 @@ const ScenarioDetail = () => {
                         <button
                             onClick={handleLike}
                             disabled={likeLoading}
-                            className={`flex items-center transition ${
-                                liked 
-                                    ? "text-red-500" 
+                            className={`flex items-center transition ${liked
+                                    ? "text-red-500"
                                     : "hover:text-red-500"
-                            } ${
-                                likeLoading ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
+                                } ${likeLoading ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
                         >
                             {likeLoading ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
                             ) : (
-                                <svg 
-                                    className="w-5 h-5 mr-2" 
-                                    fill={liked ? "currentColor" : "none"} 
-                                    stroke="currentColor" 
+                                <svg
+                                    className="w-5 h-5 mr-2"
+                                    fill={liked ? "currentColor" : "none"}
+                                    stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
                                     <path
@@ -545,7 +586,7 @@ const ScenarioDetail = () => {
                         {isEditing ? (
                             <textarea
                                 value={editForm.details}
-                                onChange={(e) => setEditForm({...editForm, details: e.target.value})}
+                                onChange={(e) => setEditForm({ ...editForm, details: e.target.value })}
                                 className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5885AF] resize-none"
                                 placeholder="Post details"
                             />

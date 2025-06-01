@@ -12,8 +12,7 @@ const PostYourScenario = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // Predefined categories
-  const categories = ["History", "Politics","General", "Science and Technology", "Pop-Culture"];
+  const categories = ["History", "Politics", "General", "Science and Technology", "Pop-Culture"];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,13 +43,12 @@ const PostYourScenario = () => {
         }
       });
 
-      if (response.data.status) {
+      if (response.data.status && response.data.post?.id) {
+        const postId = response.data.post.id;
+
         setMessage("Scenario posted successfully!");
         setFormData({ title: "", details: "", category: "" });
-
-        setTimeout(() => {
-          navigate('/');
-        }, 200);
+          navigate(`/scenario/${postId}`);
       } else {
         setMessage(response.data.message || "Failed to post scenario");
       }
@@ -68,7 +66,7 @@ const PostYourScenario = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-12 px-4">
-      <h1 className="text-2xl font-semibold text-[#5885AF] mb-2 py-2">Create a new scenario</h1>
+      <h1 className="text-2xl font-semibold text-[#5885AF] mb-2 py-5">Create a new scenario</h1>
       <p className="text-sm text-gray-600 mb-8 text-center max-w-md">
         Unleash your imagination and propose a "what if" question for the community to explore
       </p>
@@ -84,7 +82,7 @@ const PostYourScenario = () => {
 
         <div className="mb-6">
           <label className="block font-semibold mb-1">
-            Scenario Title("What if…")
+            Scenario Title ("What if…")
           </label>
           <input
             type="text"
