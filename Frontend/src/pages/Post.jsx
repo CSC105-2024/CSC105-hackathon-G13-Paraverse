@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -8,26 +8,12 @@ const PostYourScenario = () => {
     details: "",
     category: ""
   });
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // Fetch categories on component mount
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get('http://localhost:3306/api/categories');
-      if (response.data.status) {
-        setCategories(response.data.categories);
-      }
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  };
+  // Predefined categories
+  const categories = ["History", "Politics","General", "Science and Technology", "Pop-Culture"];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,8 +25,7 @@ const PostYourScenario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation
+
     if (!formData.title || !formData.details || !formData.category) {
       setMessage("Please fill in all fields");
       return;
@@ -50,8 +35,8 @@ const PostYourScenario = () => {
     setMessage("");
 
     try {
-      const token = localStorage.getItem('token'); // Assuming you store JWT token in localStorage
-      
+      const token = localStorage.getItem('token');
+
       const response = await axios.post('http://localhost:3306/api/posts', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -62,8 +47,7 @@ const PostYourScenario = () => {
       if (response.data.status) {
         setMessage("Scenario posted successfully!");
         setFormData({ title: "", details: "", category: "" });
-        
-        // Use React Router navigation instead of window.location.href
+
         setTimeout(() => {
           navigate('/');
         }, 200);
@@ -121,7 +105,7 @@ const PostYourScenario = () => {
             name="details"
             value={formData.details}
             onChange={handleInputChange}
-            placeholder="Provide enough detail to help others understand and contribute to your scenarios. This will be the remain content of your post."
+            placeholder="Provide enough detail to help others understand and contribute to your scenarios."
             className="w-full px-4 py-2 h-32 border border-gray-300 rounded bg-gray-100 placeholder:text-sm"
             required
           />

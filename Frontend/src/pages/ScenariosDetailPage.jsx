@@ -13,6 +13,7 @@ const ScenarioDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [likeLoading, setLikeLoading] = useState(false);
+    const categories = ["History", "Politics", "General", "Science and Technology", "Pop-Culture"];
     
     // Edit functionality states
     const [isEditing, setIsEditing] = useState(false);
@@ -382,13 +383,18 @@ const ScenarioDetail = () => {
                 <div className="mb-4 flex justify-between items-start">
                     <span className="inline-block bg-[#5885AF] text-white px-4 py-2 rounded-full text-sm font-medium">
                         {isEditing ? (
-                            <input
-                                type="text"
-                                value={editForm.category}
-                                onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                                className="bg-transparent border-b border-white text-white placeholder-gray-200 focus:outline-none"
-                                placeholder="Category"
-                            />
+                            <select 
+                            name="category"
+                            value={editForm.category}
+                            onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                            className="w-full px-4 py-2 border  rounded bg-[#5885AF]"
+                            required
+                            >
+                            <option value="">Select a category</option>
+                            {categories.map((category, index) => (
+                              <option key={index} value={category}>{category}</option>
+                            ))}
+                          </select>
                         ) : (
                             post.category
                         )}

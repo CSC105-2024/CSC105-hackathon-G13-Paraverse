@@ -22,6 +22,11 @@ const Category = () => {
       title: 'Pop-Culture',
       description: 'Explore scenario related to history',
       link: 'View scenarios'
+    },
+    {
+      title:"General",
+      description: 'Explore scenario related to general topics',
+      link: 'View scenarios'
     }
   ];
 
