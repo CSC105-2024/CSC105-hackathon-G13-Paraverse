@@ -77,7 +77,7 @@ Prisma
 | DELETE | /reaction/:gameId | Delete the current user's reaction   |
 | DELETE | /posts/:id        | Delete a post                        |
 
-### :inbpx_tray: Comment Routes
+### :inbox_tray: Comment Routes
 
 | Method | Endpoint               | Description                                |
 |--------|------------------------|--------------------------------------------|
@@ -88,7 +88,7 @@ Prisma
 | DELETE | /comments/:id          | Delete a comment                           |
 
 
-### :thumbup: Like Routes   
+### :thumbsup: Like Routes   
 
 | Method | Endpoint                      | Description                          |
 |--------|-------------------------------|--------------------------------------|
