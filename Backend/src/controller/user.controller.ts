@@ -159,59 +159,101 @@ export const getProfile = async (c: Context) => {
 
 export const updateProfile = async (c: Context) => {
   try {
+    console.log('=== Profile Update Request Started ===');
+    
     // Authenticate user
     const authHeader = c.req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return c.json({ status: false, message: 'Unauthorized' }, 401);
+      console.log('❌ No valid Authorization header found');
+      return c.json({ status: false, message: 'Unauthorized - No valid token' }, 401);
     }
+    
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
+    console.log('✅ Token extracted from header');
+    
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET) as { id: number };
+      console.log('✅ Token verified, user ID:', decoded.id);
+    } catch (jwtError) {
+      console.log('❌ JWT verification failed:', jwtError);
+      return c.json({ status: false, message: 'Invalid or expired token' }, 401);
+    }
 
     // Handle multipart form data
-    const formData = await c.req.formData();
+    let formData;
+    try {
+      formData = await c.req.formData();
+      console.log('✅ FormData parsed successfully');
+    } catch (formError) {
+      console.log('❌ FormData parsing failed:', formError);
+      return c.json({ status: false, message: 'Invalid form data' }, 400);
+    }
+    
     const username = formData.get('username') as string;
     const profilePicture = formData.get('profilePicture') as File | null;
 
-    // Log what we received (for debugging)
-    console.log("Update request received:", { 
-      username, 
-      hasProfilePicture: !!profilePicture,
+    // Validate username
+    if (!username || username.trim().length < 1) {
+      console.log('❌ Invalid username provided');
+      return c.json({ status: false, message: 'Username is required' }, 400);
+    }
+
+    console.log('📝 Update request data:', { 
+      username: username?.trim(), 
+      hasProfilePicture: !!profilePicture && profilePicture.size > 0,
       pictureType: profilePicture?.type,
       pictureSize: profilePicture?.size 
     });
 
     // Prepare update data
-    const updateData: any = { username };
+    const updateData: any = { username: username.trim() };
 
     // Handle profile picture if provided
     if (profilePicture && profilePicture.size > 0) {
+      console.log('🖼️ Processing profile picture...');
+      
+      // Validate file type
+      if (!profilePicture.type.startsWith('image/')) {
+        console.log('❌ Invalid file type:', profilePicture.type);
+        return c.json({ 
+          status: false, 
+          message: 'Please upload a valid image file (JPG, PNG, GIF, WebP)' 
+        }, 400);
+      }
+
+      // Check file size (2MB limit for better compatibility)
+      if (profilePicture.size > 2000000) {
+        console.log('❌ File too large:', profilePicture.size);
+        return c.json({ 
+          status: false, 
+          message: 'Image too large. Please choose an image smaller than 2MB.' 
+        }, 400);
+      }
+      
       try {
         // Convert file to Base64 for storage
         const arrayBuffer = await profilePicture.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         const base64Image = `data:${profilePicture.type};base64,${buffer.toString('base64')}`;
         
-        // Check if the encoded image isn't too large (SQLite has limits)
-        if (base64Image.length > 1000000) { // ~1MB limit
-          return c.json({ 
-            status: false, 
-            message: 'Image too large. Please choose a smaller image (< 1MB).' 
-          }, 400);
-        }
-        
+        console.log('✅ Image converted to base64, length:', base64Image.length);
         updateData.profilePicture = base64Image;
-        console.log("Image successfully encoded, length:", base64Image.length);
       } catch (imageError) {
-        console.error("Error processing image:", imageError);
+        console.error('❌ Error processing image:', imageError);
         return c.json({ 
           status: false, 
-          message: 'Error processing image. Please try another format or size.' 
+          message: 'Error processing image. Please try a different image.' 
         }, 400);
       }
+    } else {
+      console.log('ℹ️ No profile picture provided or file is empty');
     }
 
     // Update user in database
     try {
+      console.log('💾 Attempting database update...');
+      
       const updatedUser = await prisma.user.update({
         where: { id: decoded.id },
         data: updateData,
@@ -223,17 +265,36 @@ export const updateProfile = async (c: Context) => {
         },
       });
 
-      return c.json({ status: true, user: updatedUser });
+      console.log('✅ Database update successful');
+      
+      return c.json({ 
+        status: true, 
+        message: 'Profile updated successfully',
+        user: updatedUser 
+      });
+      
     } catch (dbError: any) {
-      console.error("Database update error:", dbError);
+      console.error('❌ Database update error:', dbError);
+      
+      let errorMessage = 'Database update failed';
+      if (dbError.code === 'P2002') {
+        errorMessage = 'Username already taken';
+      } else if (dbError.code === 'P2025') {
+        errorMessage = 'User not found';
+      }
+      
       return c.json({ 
         status: false, 
-        message: dbError.code === 'P2002' ? 'Username already taken' : 'Database update failed' 
+        message: errorMessage 
       }, 400);
     }
+    
   } catch (error) {
-    console.error('Update profile error:', error);
-    return c.json({ status: false, message: 'Failed to update profile' }, 500);
+    console.error('❌ Unexpected error in updateProfile:', error);
+    return c.json({ 
+      status: false, 
+      message: 'Internal server error. Please try again.' 
+    }, 500);
   }
 };
 

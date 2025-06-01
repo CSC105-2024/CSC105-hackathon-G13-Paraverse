@@ -34,27 +34,45 @@ const ProfilePage = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          navigate('/');
+          console.log('❌ No token found in localStorage');
+          navigate('/login');
           return;
         }
+
+        console.log('🔄 Fetching profile data...');
         const res = await axios.get('http://localhost:3306/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (res.data.user) {
-          const joined = new Date(res.data.user.createdAt || Date.now()).toLocaleDateString();
+
+        if (res.data.status && res.data.user) {
+          const user = res.data.user;
+          const joined = new Date(user.createdAt || Date.now()).toLocaleDateString();
+          
           setUserData({ 
-            username: res.data.user.username, 
-            email: res.data.user.email, 
+            username: user.username, 
+            email: user.email, 
             joinDate: joined,
-            profilePicture: res.data.user.profilePicture || null
+            profilePicture: user.profilePicture || null
           });
-          setEditUsername(res.data.user.username);
-          if (res.data.user.profilePicture) {
-            setPreviewImage(res.data.user.profilePicture);
+          setEditUsername(user.username);
+          
+          if (user.profilePicture) {
+            setPreviewImage(user.profilePicture);
           }
+          
+          console.log('✅ Profile data loaded successfully');
+        } else {
+          throw new Error('Invalid response format');
         }
       } catch (err) {
+        console.error('❌ Profile fetch error:', err);
         setError('Failed to load profile information');
+        
+        // If unauthorized, redirect to login
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
@@ -66,27 +84,40 @@ const ProfilePage = () => {
   /** Handle image selection */
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 1000000) {
-        setError('Image too large. Please select an image smaller than 1MB.');
-        e.target.value = null;
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        setError('Please select a valid image file.');
-        e.target.value = null;
-        return;
-      }
+    if (!file) return;
 
-      setProfileImage(file);
-      setError('');
+    console.log('🖼️ Image selected:', file.name, file.size, file.type);
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+    // Reset previous errors
+    setError('');
+
+    // Validate file size (2MB limit)
+    if (file.size > 2000000) {
+      setError('Image too large. Please select an image smaller than 2MB.');
+      e.target.value = null;
+      return;
     }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (JPG, PNG, GIF, WebP).');
+      e.target.value = null;
+      return;
+    }
+
+    setProfileImage(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+      console.log('✅ Image preview created');
+    };
+    reader.onerror = () => {
+      setError('Error reading image file');
+      console.error('❌ FileReader error');
+    };
+    reader.readAsDataURL(file);
   };
 
   /** Submit profile changes */
@@ -98,10 +129,32 @@ const ProfilePage = () => {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found. Please log in again.');
+        navigate('/login');
+        return;
+      }
+
+      // Validate username
+      if (!editUsername || editUsername.trim().length < 1) {
+        setError('Username is required');
+        return;
+      }
+
+      console.log('🔄 Submitting profile update...');
+      console.log('📝 Data:', { 
+        username: editUsername.trim(), 
+        hasImage: !!profileImage,
+        imageSize: profileImage?.size,
+        imageType: profileImage?.type 
+      });
+
       const formData = new FormData();
-      formData.append('username', editUsername);
+      formData.append('username', editUsername.trim());
+      
       if (profileImage) {
         formData.append('profilePicture', profileImage);
+        console.log('📎 Image attached to form data');
       }
 
       const res = await axios.put(
@@ -109,29 +162,76 @@ const ProfilePage = () => {
         formData,
         { 
           headers: { 
-            Authorization: `Bearer ${token}` 
-          } 
+            'Authorization': `Bearer ${token}`
+            // Don't set Content-Type - let browser handle it for FormData
+          },
+          timeout: 30000 // 30 second timeout for large images
         }
       );
 
+      console.log('📨 Server response:', res.data);
+
       if (res.data.status) {
+        // Update local state with new data
         setUserData((prev) => ({ 
           ...prev, 
-          username: editUsername,
+          username: editUsername.trim(),
           profilePicture: res.data.user.profilePicture || prev.profilePicture 
         }));
-        setSuccess('Profile updated successfully');
+        
+        // Update preview image if new profile picture was set
+        if (res.data.user.profilePicture) {
+          setPreviewImage(res.data.user.profilePicture);
+        }
+        
+        setSuccess('Profile updated successfully! ✅');
         setEditMode(false);
         setProfileImage(null);
+        
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
+        
+        console.log('✅ Profile update completed successfully');
       } else {
-        setError(res.data.message || 'Update failed');
+        throw new Error(res.data.message || 'Update failed');
       }
     } catch (err) {
-      console.error("Profile update error:", err);
-      setError(err.response?.data?.message || 'Failed to update profile');
+      console.error('❌ Profile update error:', err);
+      
+      let errorMessage = 'Failed to update profile';
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.status === 401) {
+        errorMessage = 'Session expired. Please log in again.';
+        localStorage.removeItem('token');
+        navigate('/login');
+        return;
+      } else if (err.response?.status === 413) {
+        errorMessage = 'Image too large. Please choose a smaller image.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please try with a smaller image.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }
+  };
+
+  /** Cancel edit mode */
+  const cancelEdit = () => {
+    setEditMode(false);
+    setEditUsername(userData.username);
+    setPreviewImage(userData.profilePicture);
+    setProfileImage(null);
+    setError('');
+    setSuccess('');
+    
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
   };
 
   /** Get avatar display */
@@ -142,9 +242,14 @@ const ProfilePage = () => {
           <img 
             src={previewImage} 
             alt="Profile" 
-            className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+            className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 shadow-md"
+            onError={(e) => {
+              console.error('❌ Image load error');
+              // Fallback to initials if image fails to load
+              e.target.style.display = 'none';
+            }}
           />
-          <div className="absolute inset-0 rounded-full border-2 border-gray-500"></div>
+          <div className="absolute inset-0 rounded-full border-2 border-gray-300"></div>
         </div>
       );
     }
@@ -152,7 +257,7 @@ const ProfilePage = () => {
     const initials = userData.username ? userData.username[0].toUpperCase() : '?';
     return (
       <div className="relative">
-        <div className="w-24 h-24 rounded-full bg-amber-200 flex items-center justify-center">
+        <div className="w-24 h-24 rounded-full bg-amber-200 flex items-center justify-center shadow-md">
           <span className="text-2xl font-bold text-amber-800">{initials}</span>
         </div>
         <div className="absolute inset-0 rounded-full border-2 border-amber-400"></div>
@@ -163,7 +268,12 @@ const ProfilePage = () => {
   if (loading) return (
     <>
       {/* <Navbar /> */}
-      <p className="text-center mt-10">Loading…</p>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
     </>
   );
 
@@ -174,8 +284,17 @@ const ProfilePage = () => {
         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
           <h1 className="text-2xl font-bold text-center mb-6">My Profile</h1>
 
-          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-          {success && <p className="text-green-600 mb-4 text-center">{success}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-center">
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 text-center">
+              {success}
+            </div>
+          )}
 
           {!editMode ? (
             <>
@@ -185,21 +304,21 @@ const ProfilePage = () => {
                 </div>
                 <div className="space-y-4 w-full">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500">USERNAME</h3>
-                    <p className="text-lg">{userData.username}</p>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Username</h3>
+                    <p className="text-lg font-medium">{userData.username}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500">EMAIL</h3>
-                    <p className="text-lg">{userData.email}</p>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Email</h3>
+                    <p className="text-lg font-medium">{userData.email}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500">MEMBER SINCE</h3>
-                    <p className="text-lg">{userData.joinDate}</p>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Member Since</h3>
+                    <p className="text-lg font-medium">{userData.joinDate}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setEditMode(true)}
-                  className="w-full bg-[#5885AF] text-white py-2 rounded hover:bg-[#46698a] mt-8"
+                  className="w-full bg-[#5885AF] text-white py-3 px-4 rounded-lg hover:bg-[#46698a] transition-colors mt-8 font-medium"
                 >
                   Edit Profile
                 </button>
@@ -212,48 +331,63 @@ const ProfilePage = () => {
                   {getAvatarDisplay()}
                 </div>
               </div>
-              <form onSubmit={saveChanges} className="space-y-4">
+              
+              <form onSubmit={saveChanges} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold mb-1">Profile Picture</label>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Profile Picture
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#5885AF] focus:ring-1 focus:ring-[#5885AF]"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Select a new image to change your profile picture (max 1MB)
+                  <p className="text-xs text-gray-500 mt-2">
+                    Select a new image to change your profile picture (max 2MB). Supported formats: JPG, PNG, GIF, WebP
                   </p>
                 </div>
+                
                 <div>
-                  <label className="block text-sm font-semibold mb-1">Username</label>
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Username
+                  </label>
                   <input
                     type="text"
                     value={editUsername}
                     onChange={(e) => setEditUsername(e.target.value)}
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#5885AF] focus:ring-1 focus:ring-[#5885AF]"
                     required
+                    minLength={1}
+                    maxLength={50}
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full bg-[#5885AF] text-white py-2 rounded hover:bg-[#46698a] transition-colors"
-                >
-                  {saving ? 'Saving…' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditMode(false);
-                    setPreviewImage(userData.profilePicture);
-                    setProfileImage(null);
-                    setError('');
-                  }}
-                  className="w-full bg-[#5885AF] text-white py-2 rounded hover:bg-[#46698a] transition-colors"
-                >
-                  Cancel
-                </button>
+                
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 bg-[#5885AF] text-white py-3 px-4 rounded-lg hover:bg-[#46698a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    {saving ? (
+                      <span className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Saving...
+                      </span>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    disabled={saving}
+                    className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </form>
             </>
           )}
