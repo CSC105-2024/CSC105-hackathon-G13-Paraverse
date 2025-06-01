@@ -31,16 +31,14 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         <div className="text-gray-800 font-semibold text-lg">Paraverse</div>
 
-        <div className="space-x-6 hidden md:flex">
+        <div className="space-x-6 hidden md:flex items-center">
           <NavLink to="/Home" className="text-gray-800 hover:text-[#5885AF] transition-colors">
             Home
           </NavLink>
           <NavLink to="/category" className="text-gray-800 hover:text-[#5885AF] transition-colors">
             What-if-Category
           </NavLink>
-        </div>
-
-        <div className="space-x-6 hidden md:flex">
+          
           {isAuthenticated ? (
             <>
               <NavLink to="/Profile" className="text-gray-800 hover:text-[#5885AF] transition-colors">
